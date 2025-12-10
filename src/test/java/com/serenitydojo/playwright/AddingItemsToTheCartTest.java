@@ -87,9 +87,5 @@ public class AddingItemsToTheCartTest {
         Locator searchField = page.getByPlaceholder("Search");
         searchField.fill("Pliers");
         searchField.press("Enter");
-
-
     }
-
-
 }
