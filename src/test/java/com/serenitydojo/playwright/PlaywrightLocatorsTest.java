@@ -1,7 +1,9 @@
 package com.serenitydojo.playwright;
 
 import com.microsoft.playwright.*;
+import com.microsoft.playwright.assertions.LocatorAssertions;
 import com.microsoft.playwright.assertions.PlaywrightAssertions;
+import com.microsoft.playwright.junit.UsePlaywright;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.LoadState;
 import com.microsoft.playwright.options.SelectOption;
@@ -15,60 +17,28 @@ import java.util.regex.Pattern;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
-@Execution(ExecutionMode.SAME_THREAD)
+@UsePlaywright(HeadlessChromeOptions.class)
 public class PlaywrightLocatorsTest {
-
-    protected static Playwright playwright;
-    protected static Browser browser;
-    protected static BrowserContext browserContext;
-
-    Page page;
-
-    @BeforeAll
-    static void setUpBrowser() {
-        playwright = Playwright.create();
-        browser = playwright.chromium().launch(
-                new BrowserType.LaunchOptions().setHeadless(true)
-                        .setArgs(Arrays.asList("--no-sandbox", "--disable-extensions", "--disable-gpu"))
-        );
-    }
-
-    @BeforeEach
-    void setUp() {
-        browserContext = browser.newContext();
-        page = browserContext.newPage();
-    }
-
-    @AfterEach
-    void closeContext() {
-        browserContext.close();
-    }
-
-    @AfterAll
-    static void tearDown() {
-        browser.close();
-        playwright.close();
-    }
 
     @DisplayName("Locating elements using CSS")
     @Nested
     class LocatingElementsUsingCSS {
 
         @BeforeEach
-        void openContactPage() {
+        void openContactPage(Page page) {
             page.navigate("https://practicesoftwaretesting.com/contact");
         }
 
         @DisplayName("By id")
         @Test
-        void locateTheFirstNameFieldByID() {
+        void locateTheFirstNameFieldByID(Page page) {
             page.locator("#first_name").fill("Sarah-Jane");
             assertThat(page.locator("#first_name")).hasValue("Sarah-Jane");
         }
 
         @DisplayName("By CSS class")
         @Test
-        void locateTheSendButtonByCssClass() {
+        void locateTheSendButtonByCssClass(Page page) {
             page.locator("#first_name").fill("Sarah-Jane");
             page.locator(".btnSubmit").click();
             List<String> alertMessages = page.locator(".alert").allTextContents();
@@ -78,7 +48,7 @@ public class PlaywrightLocatorsTest {
 
         @DisplayName("By attribute")
         @Test
-        void locateTheSendButtonByAttribute() {
+        void locateTheSendButtonByAttribute(Page page) {
             page.locator("input[placeholder='Your last name *']").fill("Smith");
             assertThat(page.locator("#last_name")).hasValue("Smith");
         }
@@ -89,14 +59,14 @@ public class PlaywrightLocatorsTest {
     class LocatingElementsByTextUsingCSS {
 
         @BeforeEach
-        void openContactPage() {
+        void openContactPage(Page page) {
             page.navigate("https://practicesoftwaretesting.com/contact");
         }
 
         // :has-text matches any element containing specified text somewhere inside.
         @DisplayName("Using :has-text")
         @Test
-        void locateTheSendButtonByText() {
+        void locateTheSendButtonByText(Page page) {
             page.locator("#first_name").fill("Sarah-Jane");
             page.locator("#last_name").fill("Smith");
             page.locator("input:has-text('Send')").click();
@@ -105,7 +75,7 @@ public class PlaywrightLocatorsTest {
         // :text matches the smallest element containing specified text.
         @DisplayName("Using :text")
         @Test
-        void locateAProductItemByText() {
+        void locateAProductItemByText(Page page) {
             page.locator(".navbar :text('Home')").click();
             page.locator(".card :text('Bolt')").click();
             assertThat(page.locator("[data-test=product-name]")).hasText("Bolt Cutters");
@@ -114,7 +84,7 @@ public class PlaywrightLocatorsTest {
         // Exact matches
         @DisplayName("Using :text-is")
         @Test
-        void locateAProductItemByTextIs() {
+        void locateAProductItemByTextIs(Page page) {
             page.locator(".navbar :text('Home')").click();
             page.locator(".card :text-is('Bolt Cutters')").click();
             assertThat(page.locator("[data-test=product-name]")).hasText("Bolt Cutters");
@@ -123,7 +93,7 @@ public class PlaywrightLocatorsTest {
         // matching with regular expressions
         @DisplayName("Using :text-matches")
         @Test
-        void locateAProductItemByTextMatches() {
+        void locateAProductItemByTextMatches(Page page) {
             page.locator(".navbar :text('Home')").click();
             page.locator(".card :text-matches('Bolt \\\\w+')").click();
             assertThat(page.locator("[data-test=product-name]")).hasText("Bolt Cutters");
@@ -134,20 +104,20 @@ public class PlaywrightLocatorsTest {
     @Nested
     class LocatingVisibleElements {
         @BeforeEach
-        void openContactPage() {
-            openPage();
+        void openContactPage(Page page) {
+            openPage(page);
         }
 
         @DisplayName("Finding visible and invisible elements")
         @Test
-        void locateVisibleAndInvisibleItems() {
+        void locateVisibleAndInvisibleItems(Page page) {
             int dropdownItems = page.locator(".dropdown-item").count();
             Assertions.assertTrue(dropdownItems > 0);
         }
 
         @DisplayName("Finding only visible elements")
         @Test
-        void locateVisibleItems() {
+        void locateVisibleItems(Page page) {
             int dropdownItems = page.locator(".dropdown-item:visible").count();
             Assertions.assertTrue(dropdownItems == 0);
         }
@@ -159,7 +129,7 @@ public class PlaywrightLocatorsTest {
 
         @DisplayName("Using the BUTTON role")
         @Test
-        void byButton() {
+        void byButton(Page page) {
             page.navigate("https://practicesoftwaretesting.com/contact");
 
 
@@ -173,8 +143,8 @@ public class PlaywrightLocatorsTest {
 
         @DisplayName("Using the HEADING role")
         @Test
-        void byHeaderRole() {
-            openPage();
+        void byHeaderRole(Page page) {
+            openPage(page);
 
             page.locator("#search-query").fill("Pliers");
 
@@ -191,25 +161,25 @@ public class PlaywrightLocatorsTest {
 
         @DisplayName("Using the HEADING role and level")
         @Test
-        void byHeaderRoleLevel() {
-            openPage();
+        void byHeaderRoleLevel(Page page) {
+            openPage(page);
 
-            List<String> level4Headings
-                    = page.getByRole(AriaRole.HEADING,
-                            new Page.GetByRoleOptions()
-                                    .setName("Pliers")
-                                    .setLevel(5))
-                    .allTextContents();
+            Locator headings = page.getByRole(
+                    AriaRole.HEADING,
+                    new Page.GetByRoleOptions().setLevel(5)
+            );
+            assertThat(headings.first()).isVisible();
+
+            List<String> level4Headings = headings.allTextContents();
 
             org.assertj.core.api.Assertions.assertThat(level4Headings).isNotEmpty();
         }
 
         @DisplayName("Identifying checkboxes")
         @Test
-        void byCheckboxes() {
-            playwright.selectors().setTestIdAttribute("data-test");
+        void byCheckboxes(Page page) {
 
-            openPage();
+            openPage(page);
             page.getByLabel("Hammer").click();
             page.getByLabel("Chisels").click();
             page.getByLabel("Wrench").click();
@@ -241,7 +211,7 @@ public class PlaywrightLocatorsTest {
 
         @DisplayName("Using a label")
         @Test
-        void byLabel() {
+        void byLabel(Page page) {
             page.navigate("https://practicesoftwaretesting.com/contact");
 
             page.getByLabel("First name").fill("Obi-Wan");
@@ -254,7 +224,7 @@ public class PlaywrightLocatorsTest {
 
         @DisplayName("Using a placeholder text")
         @Test
-        void byPlaceholder() {
+        void byPlaceholder(Page page) {
             page.navigate("https://practicesoftwaretesting.com/contact");
 
             page.getByPlaceholder("Your first name").fill("Obi-Wan");
@@ -272,13 +242,13 @@ public class PlaywrightLocatorsTest {
     class LocatingElementsByText {
 
         @BeforeEach
-        void openTheCatalogPage() {
-            openPage();
+        void openTheCatalogPage(Page page) {
+            openPage(page);
         }
 
         @DisplayName("Locating an element by text contents")
         @Test
-        void byText() {
+        void byText(Page page) {
             page.getByText("Bolt Cutters").click();
 
             PlaywrightAssertions.assertThat(page.getByText("MightyCraft Hardware")).isVisible();
@@ -286,7 +256,7 @@ public class PlaywrightLocatorsTest {
 
         @DisplayName("Using alt text")
         @Test
-        void byAltText() {
+        void byAltText(Page page) {
             page.getByAltText("Combination Pliers").click();
 
             PlaywrightAssertions.assertThat(page.getByText("ForgeFlex Tools")).isVisible();
@@ -294,7 +264,7 @@ public class PlaywrightLocatorsTest {
 
         @DisplayName("Using title")
         @Test
-        void byTitle() {
+        void byTitle(Page page) {
             page.getByAltText("Combination Pliers").click();
 
             page.getByTitle("Practice Software Testing - Toolshop").click();
@@ -305,17 +275,10 @@ public class PlaywrightLocatorsTest {
     @Nested
     class LocatingElementsByTestID {
 
-        @BeforeAll
-        static void setTestId() {
-            playwright.selectors().setTestIdAttribute("data-test");
-        }
-
         @DisplayName("Using a custom data-test field")
         @Test
-        void byTestId() {
-            openPage();
-
-            playwright.selectors().setTestIdAttribute("data-test");
+        void byTestId(Page page) {
+            openPage(page);
 
             page.getByTestId("search-query").fill("Pliers");
             page.getByTestId("search-submit").click();
@@ -327,15 +290,10 @@ public class PlaywrightLocatorsTest {
     @Nested
     class NestedLocators {
 
-        @BeforeAll
-        static void setTestId() {
-            playwright.selectors().setTestIdAttribute("data-test");
-        }
-
         @DisplayName("Using roles")
         @Test
-        void locatingAMenuItemUsingRoles() {
-            openPage();
+        void locatingAMenuItemUsingRoles(Page page) {
+            openPage(page);
 
             page.getByRole(AriaRole.MENUBAR, new Page.GetByRoleOptions().setName("Main Menu"))
                     .getByRole(AriaRole.MENUITEM, new Locator.GetByRoleOptions().setName("Home"))
@@ -344,8 +302,8 @@ public class PlaywrightLocatorsTest {
 
         @DisplayName("Using roles with other strategies")
         @Test
-        void locatingAMenuItemUsingRolesAndOtherStrategies() {
-            openPage();
+        void locatingAMenuItemUsingRolesAndOtherStrategies(Page page) {
+            openPage(page);
 
             page.getByRole(AriaRole.MENUBAR, new Page.GetByRoleOptions().setName("Main Menu"))
                     .getByText("Home")
@@ -354,8 +312,8 @@ public class PlaywrightLocatorsTest {
 
         @DisplayName("filtering locators by text")
         @Test
-        void filteringMenuItems() {
-            openPage();
+        void filteringMenuItems(Page page) {
+            openPage(page);
 
             page.getByRole(AriaRole.MENUBAR, new Page.GetByRoleOptions().setName("Main Menu"))
                     .getByText("Categories")
@@ -376,21 +334,22 @@ public class PlaywrightLocatorsTest {
 
         @DisplayName("filtering locators by locator")
         @Test
-        void filteringMenuItemsByLocator() {
-            openPage();;
+        void filteringMenuItemsByLocator(Page page) {
+            openPage(page);
 
-            List<String> allProducts = page.locator(".card")
+            Locator allProducts = page.locator(".card")
                     .filter(new Locator.FilterOptions().setHas(page.getByText("Out of stock")))
-                    .getByTestId("product-name")
-                    .allTextContents();
+                    .getByTestId("product-name");
 
-            org.assertj.core.api.Assertions.assertThat(allProducts).hasSize(1)
+            assertThat(allProducts.first()).isVisible();
+            List<String> allProductNames = allProducts.allTextContents();
+
+            org.assertj.core.api.Assertions.assertThat(allProductNames).hasSize(1)
                     .allMatch(name -> name.contains("Long Nose Pliers"));
         }
     }
 
-    private void openPage() {
+    private void openPage(Page page) {
         page.navigate("https://practicesoftwaretesting.com");
-        page.waitForLoadState(LoadState.NETWORKIDLE);
     }
 }

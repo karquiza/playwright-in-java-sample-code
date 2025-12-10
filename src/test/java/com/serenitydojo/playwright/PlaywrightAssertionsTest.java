@@ -32,7 +32,7 @@ public class PlaywrightAssertionsTest {
         playwright = Playwright.create();
         playwright.selectors().setTestIdAttribute("data-test");
         browser = playwright.chromium().launch(
-                new BrowserType.LaunchOptions().setHeadless(true)
+                new BrowserType.LaunchOptions().setHeadless(false)
                         .setArgs(Arrays.asList("--no-sandbox", "--disable-extensions", "--disable-gpu"))
         );
     }
@@ -132,6 +132,7 @@ public class PlaywrightAssertionsTest {
         void shouldSortInAlphabeticalOrder() {
             page.getByLabel("Sort").selectOption("Name (A - Z)");
             page.waitForLoadState(LoadState.NETWORKIDLE);
+            page.waitForTimeout(500);
 
             List<String> productNames = page.getByTestId("product-name").allTextContents();
 

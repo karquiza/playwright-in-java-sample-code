@@ -1,6 +1,7 @@
 package com.serenitydojo.playwright;
 
 import com.microsoft.playwright.*;
+import com.microsoft.playwright.junit.UsePlaywright;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.SelectOption;
 import org.assertj.core.api.Assertions;
@@ -12,50 +13,22 @@ import java.util.regex.Pattern;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
+@UsePlaywright(HeadlessChromeOptions.class)
 public class PlaywrightCollectionsTest {
 
-    protected static Playwright playwright;
-    protected static Browser browser;
-    protected static BrowserContext browserContext;
-
-    Page page;
-
-    @BeforeAll
-    static void setUpBrowser() {
-        playwright = Playwright.create();
-        browser = playwright.chromium().launch(
-                new BrowserType.LaunchOptions().setHeadless(true)
-                        .setArgs(Arrays.asList("--no-sandbox", "--disable-extensions", "--disable-gpu"))
-        );
-        playwright.selectors().setTestIdAttribute("data-test");
-    }
-
     @BeforeEach
-    void setUp() {
-        browserContext = browser.newContext();
-        page = browserContext.newPage();
-        openPage();
+    void setUp(Page page) {
+        openPage(page);
     }
 
-    @AfterEach
-    void closeContext() {
-        browserContext.close();
-    }
-
-    @AfterAll
-    static void tearDown() {
-        browser.close();
-        playwright.close();
-    }
-
-    private void openPage() {
+    private void openPage(Page page) {
         page.navigate("https://practicesoftwaretesting.com");
         page.waitForCondition(() -> page.getByTestId("product-name").count() > 0);
     }
 
     @DisplayName("Counting items in a list")
     @Test
-    void countingItemsOnThePage() {
+    void countingItemsOnThePage(Page page) {
 
         int itemsOnThePage = page.locator(".card").count();
 
@@ -64,7 +37,7 @@ public class PlaywrightCollectionsTest {
 
     @DisplayName("Finding the first matching item")
     @Test
-    void findingTheFirstMatchingItem() {
+    void findingTheFirstMatchingItem(Page page) {
 
         page.locator(".card").first().click();
 
@@ -72,7 +45,7 @@ public class PlaywrightCollectionsTest {
 
     @DisplayName("Finding the nth matching item")
     @Test
-    void findingNthMatchingItem() {
+    void findingNthMatchingItem(Page page) {
 
         page.locator(".card").nth(2).click();
 
@@ -80,7 +53,7 @@ public class PlaywrightCollectionsTest {
 
     @DisplayName("Finding the last matching item")
     @Test
-    void findingLastMatchingItem() {
+    void findingLastMatchingItem(Page page) {
 
         page.locator(".card").last().click();
 
@@ -92,7 +65,7 @@ public class PlaywrightCollectionsTest {
 
         @DisplayName("and finding all the text values ")
         @Test
-        void withAllTextContents() {
+        void withAllTextContents(Page page) {
 
             List<String> itemNames = page.getByTestId("product-name").allTextContents();
 
@@ -110,7 +83,7 @@ public class PlaywrightCollectionsTest {
 
         @DisplayName("and asserting with  hasText")
         @Test
-        void withHasText() {
+        void withHasText(Page page) {
             assertThat(page.getByTestId("product-name"))
                     .hasText(new String[]{
                             " Combination Pliers ",

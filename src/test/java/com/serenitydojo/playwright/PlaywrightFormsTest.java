@@ -1,68 +1,34 @@
 package com.serenitydojo.playwright;
 
-import com.microsoft.playwright.*;
+import com.microsoft.playwright.Page;
+import com.microsoft.playwright.junit.UsePlaywright;
 import com.microsoft.playwright.options.AriaRole;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
-@Execution(ExecutionMode.SAME_THREAD)
+@UsePlaywright(HeadlessChromeOptions.class)
 public class PlaywrightFormsTest {
-
-    protected static Playwright playwright;
-    protected static Browser browser;
-    protected static BrowserContext browserContext;
-
-    Page page;
-
-    @BeforeAll
-    static void setUpBrowser() {
-        playwright = Playwright.create();
-        browser = playwright.chromium().launch(
-                new BrowserType.LaunchOptions().setHeadless(true)
-                        .setArgs(Arrays.asList("--no-sandbox", "--disable-extensions", "--disable-gpu"))
-        );
-    }
-
-    @BeforeEach
-    void setUp() {
-        browserContext = browser.newContext();
-        page = browserContext.newPage();
-    }
-
-    @AfterEach
-    void closeContext() {
-        browserContext.close();
-    }
-
-    @AfterAll
-    static void tearDown() {
-        browser.close();
-        playwright.close();
-    }
 
     @DisplayName("Interacting with text fields")
     @Nested
     class WhenInteractingWithTextFields {
 
         @BeforeEach
-        void openContactPage() {
+        void openContactPage(Page page) {
             page.navigate("https://practicesoftwaretesting.com/contact");
         }
 
         @DisplayName("Complete the form")
         @Test
-        void completeForm() throws URISyntaxException {
+        void completeForm(Page page) throws URISyntaxException {
             var firstNameField = page.getByLabel("First name");
             var lastNameField = page.getByLabel("Last name");
             var emailNameField = page.getByLabel("Email");
@@ -93,7 +59,7 @@ public class PlaywrightFormsTest {
         @DisplayName("Mandatory fields")
         @ParameterizedTest
         @ValueSource(strings = {"First name", "Last name", "Email", "Message"})
-        void mandatoryFields(String fieldName) {
+        void mandatoryFields(String fieldName, Page page) {
             var firstNameField = page.getByLabel("First name");
             var lastNameField = page.getByLabel("Last name");
             var emailNameField = page.getByLabel("Email");
@@ -121,7 +87,7 @@ public class PlaywrightFormsTest {
 
         @DisplayName("Text fields")
         @Test
-        void textFieldValues() {
+        void textFieldValues(Page page) {
             var messageField = page.getByLabel("Message");
 
             messageField.fill("This is my message");
@@ -131,7 +97,7 @@ public class PlaywrightFormsTest {
 
         @DisplayName("Dropdown lists")
         @Test
-        void dropdownFieldValues() {
+        void dropdownFieldValues(Page page) {
             var subjectField = page.getByLabel("Subject");
 
             subjectField.selectOption("Warranty");
@@ -141,7 +107,7 @@ public class PlaywrightFormsTest {
 
         @DisplayName("File uploads")
         @Test
-        void fileUploads() throws URISyntaxException {
+        void fileUploads(Page page) throws URISyntaxException {
             var attachmentField = page.getByLabel("Attachment");
 
             Path attachment = Paths.get(ClassLoader.getSystemResource("data/sample-data.txt").toURI());
@@ -156,7 +122,7 @@ public class PlaywrightFormsTest {
 
         @DisplayName("By CSS class")
         @Test
-        void locateTheSendButtonByCssClass() {
+        void locateTheSendButtonByCssClass(Page page) {
             page.locator("#first_name").fill("Sarah-Jane");
             page.locator(".btnSubmit").click();
             List<String> alertMessages = page.locator(".alert").allTextContents();
@@ -166,7 +132,7 @@ public class PlaywrightFormsTest {
 
         @DisplayName("By attribute")
         @Test
-        void locateTheSendButtonByAttribute() {
+        void locateTheSendButtonByAttribute(Page page) {
             page.locator("input[placeholder='Your last name *']").fill("Smith");
             assertThat(page.locator("#last_name")).hasValue("Smith");
         }
