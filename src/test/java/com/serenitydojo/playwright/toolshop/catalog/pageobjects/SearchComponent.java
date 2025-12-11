@@ -17,6 +17,7 @@ public class SearchComponent {
             page.getByPlaceholder("Search").fill(keyword);
             page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Search")).click();
         });
+        page.waitForTimeout(250);
     }
 
     @Step("Clear the search criteria")
@@ -24,5 +25,6 @@ public class SearchComponent {
         page.waitForResponse("**/products**", () -> {
             page.getByTestId("search-reset").click();
         });
+        page.waitForTimeout(250);
     }
 }
