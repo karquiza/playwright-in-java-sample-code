@@ -15,11 +15,13 @@ public class SearchComponent {
             page.getByPlaceholder("Search").fill(keyword);
             page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Search")).click();
         });
+        page.waitForTimeout(250);
     }
 
     public void clearSearch() {
         page.waitForResponse("**/products**", () -> {
             page.getByTestId("search-reset").click();
         });
+        page.waitForTimeout(250);
     }
 }
