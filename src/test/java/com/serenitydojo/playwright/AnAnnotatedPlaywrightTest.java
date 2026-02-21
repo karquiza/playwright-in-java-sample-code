@@ -10,8 +10,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
-@UsePlaywright(ASimplePlaywrightTest.CustomOptions.class)
-public class ASimplePlaywrightTest {
+@UsePlaywright(AnAnnotatedPlaywrightTest.CustomOptions.class)
+public class AnAnnotatedPlaywrightTest {
 
     public static class CustomOptions implements OptionsFactory {
         @Override
