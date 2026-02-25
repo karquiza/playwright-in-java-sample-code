@@ -1,6 +1,7 @@
 package com.serenitydojo.playwright;
 
 import com.microsoft.playwright.*;
+import com.microsoft.playwright.junit.UsePlaywright;
 import com.microsoft.playwright.options.AriaRole;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
@@ -10,44 +11,9 @@ import java.util.List;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
+@UsePlaywright(HeadlessChromeOptions.class)
 public class AddingItemsToTheCartTest {
-    protected static Playwright playwright;
-    protected static Browser browser;
-    protected static BrowserContext browserContext;
-
     Page page;
-
-    @BeforeAll
-    public static void setUpBrowser() {
-        playwright = Playwright.create();
-        browser = playwright.chromium().launch(
-                new BrowserType.LaunchOptions()
-                        .setHeadless(false)
-                        .setArgs(Arrays.asList("--no-sandbox",
-                                "--disable-gpu",
-                                "--disable-extensions"))
-        );
-        browserContext = browser.newContext();
-
-        playwright.selectors().setTestIdAttribute("data-test"); // KREN: Not sure where to set this actually.
-        // Update: yeah, missed that in the video, but this is the correct location for this.
-    }
-
-    @BeforeEach
-    public void setup(){
-        page = browserContext.newPage();
-    }
-
-    @AfterEach
-    void closeContext() {
-        browserContext.close();
-    }
-
-    @AfterAll
-    public static void tearDown() {
-        browser.close();
-        playwright.close();
-    }
 
     @DisplayName("Search for pliers")
     @Test
