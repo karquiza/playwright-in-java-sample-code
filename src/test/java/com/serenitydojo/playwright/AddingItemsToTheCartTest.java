@@ -6,18 +6,16 @@ import com.microsoft.playwright.options.AriaRole;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 @UsePlaywright(HeadlessChromeOptions.class)
 public class AddingItemsToTheCartTest {
-    Page page;
 
     @DisplayName("Search for pliers")
     @Test
-    void searchForPliers() {
+    void searchForPliers(Page page) {
         // KREN: The purpose of this exercise is to use all the different kinds of locators in the lesson.
         //       The question of what is the best locator to use and best practices will be taken up in a future lesson.
 
@@ -42,7 +40,7 @@ public class AddingItemsToTheCartTest {
 
     @DisplayName("Search for hammers")
     @Test
-    void searchForHammers() {
+    void searchForHammers(Page page) {
         page.navigate("https://practicesoftwaretesting.com/");
         page.getByPlaceholder("Search").fill("hammer");
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Search")).click();
